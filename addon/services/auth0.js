@@ -1,14 +1,17 @@
-import { readOnly } from '@ember/object/computed';
+import { readOnly, bool } from '@ember/object/computed';
 import { getOwner } from '@ember/application';
-import { getProperties, get, computed } from '@ember/object';
+import { getProperties, get, getWithDefault, computed } from '@ember/object';
 import { assert } from '@ember/debug';
 import { isEmpty } from '@ember/utils';
 import Service, { inject as service } from '@ember/service';
+import { merge as emberMerge, assign as emberAssign } from '@ember/polyfills';
 import RSVP from 'rsvp';
 import Auth0 from 'auth0-js';
 import { Auth0Lock, Auth0LockPasswordless } from 'auth0-lock';
 import createSessionDataObject from '../utils/create-session-data-object';
 import { Auth0Error } from '../utils/errors'
+
+const assign = Object.assign || emberAssign || emberMerge;
 
 export default Service.extend({
   session: service(),
@@ -51,6 +54,32 @@ export default Service.extend({
    * @type {String}
    */
   logoutReturnToURL: readOnly('config.logoutReturnToURL'),
+
+  /**
+   * Automatically perform silent authentication on session restore.
+   * @type {bool}
+   */
+  silentAuthOnSessionRestore: bool('config.silentAuth.onSessionRestore'),
+
+  /**
+   * Options to use when automatically performing silent authentication.
+   * @type {Object}
+   */
+  silentAuthOptions: computed(function() {
+    const defaultOptions = {
+      responseType: 'token',
+      scope: 'openid',
+      redirectUri: window.location.origin, // TODO: regenerate this every time
+      timeout: 5000
+    };
+    const configOptions = getWithDefault(this, 'config.silentAuth.options', {});
+
+    // [XA] convoluted assign logic, just in case the Ember.Merge fallback is used.
+    const options = {};
+    assign(options, defaultOptions);
+    assign(options, configOptions);
+    return options;
+  }),
 
   /**
    * Perform Silent Authentication with Auth0's checkSession() method.
