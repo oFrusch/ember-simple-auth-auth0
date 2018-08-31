@@ -114,7 +114,7 @@ export default Mixin.create(ApplicationRouteMixin, {
 
   /**
    * The current JWT's expire time
-   * @return {Number in seconds}
+   * @return {Date of expiration}
    */
   _expiresAt: computed('session.data.authenticated', {
     get() {
@@ -127,6 +127,10 @@ export default Mixin.create(ApplicationRouteMixin, {
     }
   }),
 
+  /**
+   * Number of seconds until the JWT expires.
+   * @return {Number in seconds}
+   */
   _jwtRemainingTimeInSeconds: computed('_expiresAt', {
     get() {
       let remaining = getWithDefault(this, '_expiresAt', 0) - now();
