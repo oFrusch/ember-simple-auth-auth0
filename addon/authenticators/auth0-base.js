@@ -46,7 +46,15 @@ export default BaseAuthenticator.extend({
       // result of checkSession is the same as parseHash.
       get(this, 'auth0').silentAuth(options).then(authenticatedData => {
         this._resolveAuthResult(authenticatedData, resolve, reject);
-      }, reject);
+      }, result => {
+        // for any error types other than login_required, log it to the console.
+        // otherwise, there are a few cases (auto-renewal, basically) where the
+        // error details will get swallowed completely. Better to give feedback.
+        if(console && result && result.name && result.name !== 'login_required') {
+          console.warn(`Silent authentication failed: ${result.message}`); // eslint-disable-line no-console
+        }
+        reject(result);
+      });
     });
   }
 });
