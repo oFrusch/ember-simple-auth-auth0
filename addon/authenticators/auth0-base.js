@@ -15,8 +15,7 @@ export default BaseAuthenticator.extend({
     if(expiresAt > now()) {
       return RSVP.resolve(data);
     } else if(get(this, 'auth0.silentAuthOnSessionRestore')) {
-      const options = get(this, 'auth0.silentAuthOptions');
-      return this._performSilentAuth(options)
+      return this._performSilentAuth()
     } else {
       return RSVP.reject();
     }

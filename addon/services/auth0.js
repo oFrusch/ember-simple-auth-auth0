@@ -56,6 +56,12 @@ export default Service.extend({
   logoutReturnToURL: readOnly('config.logoutReturnToURL'),
 
   /**
+   * Enable user impersonation. This is opt-in due to security risks.
+   * @type {bool}
+   */
+  enableImpersonation: bool('config.enableImpersonation'),
+
+  /**
    * Automatically perform silent authentication on session restore.
    * @type {bool}
    */
