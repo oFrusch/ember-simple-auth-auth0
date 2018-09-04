@@ -74,14 +74,16 @@ export default Service.extend({
   silentAuthOnSessionExpire: bool('config.silentAuth.onSessionExpire'),
 
   /**
-   * Options to use when automatically performing silent authentication.
-   * @type {Object}
+   * Default options to use when performing silent authentication.
+   * This is a function rather than a computed property since the
+   * default redirectUri needs to be regenerated every time.
+   * @return {Object}
    */
-  silentAuthOptions: computed(function() {
+  getSilentAuthOptions() {
     const defaultOptions = {
       responseType: 'token',
       scope: 'openid',
-      redirectUri: window.location.origin, // TODO: regenerate this every time
+      redirectUri: window.location.origin,
       timeout: 5000
     };
     const configOptions = getWithDefault(this, 'config.silentAuth.options', {});
@@ -91,7 +93,7 @@ export default Service.extend({
     assign(options, defaultOptions);
     assign(options, configOptions);
     return options;
-  }),
+  },
 
   /**
    * Perform Silent Authentication with Auth0's checkSession() method.
@@ -104,7 +106,7 @@ export default Service.extend({
    */
   silentAuth(options) {
     if(!options) {
-      options = get(this, 'silentAuthOptions');
+      options = this.getSilentAuthOptions();
     }
     return new RSVP.Promise((resolve, reject) => {
       const auth0 = this.getAuth0Instance();
