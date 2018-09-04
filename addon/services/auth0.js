@@ -62,6 +62,12 @@ export default Service.extend({
   enableImpersonation: bool('config.enableImpersonation'),
 
   /**
+   * Number of seconds between auto-renewing token via silent authentication.
+   * @type {number}
+   */
+  silentAuthRenewSeconds: readOnly('config.silentAuth.renewSeconds'),
+
+  /**
    * Automatically perform silent authentication on session restore.
    * @type {bool}
    */

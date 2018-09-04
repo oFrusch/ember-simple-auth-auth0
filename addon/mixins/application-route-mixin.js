@@ -99,17 +99,29 @@ export default Mixin.create(ApplicationRouteMixin, {
       return;
     }
 
-    // [XA] only actually schedule expired events if we're authenticated.
+    // [XA] only actually schedule events if we're authenticated.
     if (get(this, 'session.isAuthenticated')) {
+      this._scheduleRenew();
       this._scheduleExpire();
     }
   },
 
+  _scheduleJob(jobName, jobFn, timeInMilli) {
+    run.cancel(get(this, jobName));
+    const job = run.later(this, jobFn, timeInMilli);
+    set(this, jobName, job);
+  },
+
+  _scheduleRenew() {
+    const renewInMilli = get(this, 'auth0.silentAuthRenewSeconds') * 1000;
+    if(renewInMilli) {
+      this._scheduleJob('_renewJob', this._processSessionRenewed, renewInMilli);
+    }
+  },
+
   _scheduleExpire() {
-    run.cancel(get(this, '_expireJob'));
     const expireInMilli = get(this, '_jwtRemainingTimeInSeconds') * 1000;
-    const job = run.later(this, this._processSessionExpired, expireInMilli);
-    set(this, '_expireJob', job);
+    this._scheduleJob('_expireJob', this._processSessionExpired, expireInMilli);
   },
 
   /**
@@ -140,7 +152,14 @@ export default Mixin.create(ApplicationRouteMixin, {
   }),
 
   _clearJobs() {
+    run.cancel(get(this, '_renewJob'));
     run.cancel(get(this, '_expireJob'));
+  },
+
+  _processSessionRenewed() {
+    // [XA] need to refactor this a bit. This is kinda bonkers-spaghetti right now.
+    return this._trySilentAuth()
+      .then(this._scheduleRenew.bind(this), this._setupFutureEvents.bind(this));
   },
 
   _processSessionExpired() {
