@@ -145,7 +145,22 @@ export default Mixin.create(ApplicationRouteMixin, {
 
   _processSessionExpired() {
     return this.beforeSessionExpired()
-      .then(this._invalidateIfAuthenticated.bind(this));
+      .then(this._trySilentAuth.bind(this))
+      .then(this._invalidateIfAuthenticated.bind(this), this._scheduleExpire.bind(this)); // reschedule expiration if we re-authenticate.
+  },
+
+  _trySilentAuth() {
+    const auth0Svc = get(this, 'auth0');
+    if(get(auth0Svc, 'silentAuthOnSessionExpire')) {
+      // Try silent auth, but reverse the promise results.
+      // since a rejecting promise during expiration means
+      // "don't expire", we want to reject on success and
+      // resolve on failure. Strange times.
+      return new RSVP.Promise((resolve, reject) => {
+        get(this, 'session').authenticate('authenticator:auth0-silent-auth').then(reject, resolve);
+      });
+    }
+    return RSVP.resolve();
   },
 
   _invalidateIfAuthenticated() {

@@ -62,6 +62,12 @@ export default Service.extend({
   silentAuthOnSessionRestore: bool('config.silentAuth.onSessionRestore'),
 
   /**
+   * Automatically perform silent authentication on session expiration.
+   * @type {bool}
+   */
+  silentAuthOnSessionExpire: bool('config.silentAuth.onSessionExpire'),
+
+  /**
    * Options to use when automatically performing silent authentication.
    * @type {Object}
    */
@@ -91,6 +97,9 @@ export default Service.extend({
    * @method silentAuth
    */
   silentAuth(options) {
+    if(!options) {
+      options = get(this, 'silentAuthOptions');
+    }
     return new RSVP.Promise((resolve, reject) => {
       const auth0 = this.getAuth0Instance();
       auth0.checkSession(options, (err, data) => {
