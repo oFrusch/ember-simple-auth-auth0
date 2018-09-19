@@ -1,6 +1,5 @@
 'use strict';
 
-const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 const webpack = require('webpack');
 
 module.exports = {
