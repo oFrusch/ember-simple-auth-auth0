@@ -91,7 +91,7 @@ export default Mixin.create(ApplicationRouteMixin, {
   },
 
   _clearUrlHash() {
-    if(typeof FastBoot !== 'undefined' && !this.get('inTesting') && window.history) {
+    if(typeof FastBoot === 'undefined' && !this.get('inTesting') && window.history) {
       window.history.pushState('', document.title, window.location.pathname + window.location.search);
     }
     return RSVP.resolve()
