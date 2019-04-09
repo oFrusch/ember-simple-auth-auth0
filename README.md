@@ -203,7 +203,7 @@ export default Controller.extend({
       const lockOptions = {
        auth: {
          params: {
-           scope: 'openid user_metadata'
+           scope: 'openid user_metadata profile'
          }
        }
       };
