@@ -13,6 +13,7 @@ import { Auth0Error } from '../utils/errors'
 
 export default Service.extend({
   session: service(),
+  cookies: service(),
 
   inTesting: computed(function() {
     let config = getOwner(this).resolveRegistration('config:environment');
@@ -172,14 +173,27 @@ export default Service.extend({
   /**
    * Redirect to Auth0's Universal Login page.
    *
-   * As this triggers a redirect away from the Ember app,
-   * This method returns a never-fulfilling promise.
-   *
    * @method universalLogin
    */
-  universalLogin(options) {
+  universalLogin(options)
+  {
+    // save the attempted transition URL so ember-simple-auth
+    // will restore it once Auth0 redirects back to the app.
+    let transitionPath = get(this, 'session.attemptedTransition.intent.url');
+    if(transitionPath) {
+      get(this, 'cookies').write('ember_simple_auth-redirectTarget', transitionPath, {
+        path: '/',
+        secure: window.location.protocol === 'https:'
+      });
+    }
+
+    // redirect to the login page.
     const auth0 = this.getAuth0Instance();
-    auth0.authorize(options);
+    const authOptions = assign({ redirectUri: window.location.origin }, options);
+    auth0.authorize(authOptions);
+
+    // since the above triggers a redirect away from the
+    // Ember app, return a never-fulfilling promise.
     const noop = () => {};
     return new RSVP.Promise(noop);
   },
