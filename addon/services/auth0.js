@@ -169,6 +169,21 @@ export default Service.extend({
     }
   },
 
+  /**
+   * Redirect to Auth0's Universal Login page.
+   *
+   * As this triggers a redirect away from the Ember app,
+   * This method returns a never-fulfilling promise.
+   *
+   * @method universalLogin
+   */
+  universalLogin(options) {
+    const auth0 = this.getAuth0Instance();
+    auth0.authorize(options);
+    const noop = () => {};
+    return new RSVP.Promise(noop);
+  },
+
   showLock(options, clientID = null, domain = null, passwordless = false) {
     return new RSVP.Promise((resolve, reject) => {
       const lock = this.getAuth0LockInstance(options, clientID, domain, passwordless);
