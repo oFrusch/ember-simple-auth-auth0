@@ -27,6 +27,7 @@ Auth0's [Lock](https://github.com/auth0/lock) widget is a nice way to get a full
 
 * [Passwordless](#passwordless)
 * [Impersonation](#impersonation)
+* [Silent Authentication](#silent-authentication)
 * [Session Data](#session-data)
 * [Handling Errors](#handling-errors)
 * [Calling an API](#calling-an-api)
@@ -87,6 +88,7 @@ In your `config/environment.js` file, provide the following properties:
 2. (REQUIRED) - _domain_ - Get this from your [Auth0 Dashboard](https://manage.auth0.com/#/clients)
 3. (OPTIONAL) - _logoutReturnToURL_ - This can be overridden if you have a different logout callback than the login page.
 4. (OPTIONAL) - _enableImpersonation_ - Enables user impersonation. False by default.
+5. (OPTIONAL) - _silentAuth__ - A hash of options for configuring [Silent Authentication](#silent-authentication) -- see the linked doc section for more details.
 
 An example configuration might look something like:
 
@@ -100,7 +102,12 @@ module.exports = function(environment) {
         clientID: '<client_id>',
         domain: '<your_domain>.auth0.com',
         logoutReturnToURL: '/logout',
-        enableImpersonation: false
+        enableImpersonation: false,
+        silentAuth: {
+          // Silent authentication is off by default.
+          // See 'Silent Authentication' section in this
+          // readme for a list of options that go here.
+        }
       }
     }
   };
@@ -287,6 +294,61 @@ The new session object will include the following fields:
   }
 }
 ```
+
+## Silent Authentication
+
+Since version 4.2.0, this addon supports automatic [Silent Authentication](https://auth0.com/docs/api-auth/tutorials/silent-authentication), a.k.a. the ability to automatically refresh session tokens upon (or before) expiration.
+
+Automatic silent authentication enabled in the app's environment configuration file; next to the rest of thea auth0 config options, simply provide a `silentAuth` object with the following:
+
+1. (OPTIONAL) - _renewSeconds_ - If set, the token will be renewed on a timer, every specified number of seconds.
+2. (OPTIONAL) - _onSessionRestore_ - If `true`, the token will be renewed when trying to restore an expired session token on app load.
+3. (OPTIONAL) - _onSessionExpire_ - If `true`, the token will be renewed when the active session token expires during app use.
+4. (REQUIRED) - _options_ - A hash of options to pass to [checkSession](https://auth0.com/docs/libraries/auth0js/v9#using-checksession-to-acquire-new-tokens), the function which performs Silent Authentication behind the scenes. See linked docs for details on what these options can be.
+
+Although the first 3 parameters are technically optional, at least one of them needs to be set for anything to happen, naturally.
+
+A typical example might look like the following:
+
+```js
+// config/environment.js
+module.exports = function(environment) {
+  let ENV = {
+    'ember-simple-auth': {
+      // ...
+
+      auth0: {
+        // ...
+
+        silentAuth: {
+
+          // automatically renew token every 30 minutes:
+          renewSeconds: 1800,
+
+          // automatically renew token when trying to restore an expired session (on app load):
+          onSessionRestore: true,
+
+          // automatically renew token when token expiration time is hit (during app use):
+          onSessionExpire: true,
+
+          // options to pass to checkSession when doing automatic silent auth.
+          // The redirectUri parameter is automatically set to window.location.origin
+          // if not specified.
+          options: {
+            responseType: 'token id_token',
+            scope: 'openid profile email',
+            timeout: 5000
+          }
+        }
+      }
+    }
+  };
+
+  return ENV;
+};
+```
+
+In addition to the above, an `auth0-silent-auth` authenticator is provided in case you have a particular custom hook in your application you wish to trigger a token refresh from, but this is a rather advanced use case that most users won't need to mess with.
 
 ## Session Data
 
