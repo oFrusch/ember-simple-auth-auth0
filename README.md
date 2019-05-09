@@ -6,7 +6,7 @@
 
 ### An ember-cli addon for using [Auth0](https://auth0.com/) with [Ember Simple Auth](https://github.com/simplabs/ember-simple-auth).
 
-Auth0's [Lock](https://github.com/auth0/lock) widget is a nice way to get a fully functional signup and login workflow into your app.
+Auth0's [Lock](https://github.com/auth0/lock) widget and [Universal Login](https://auth0.com/docs/universal-login) page are nice ways to get a fully functional signup and login workflow into your app. This addon makes it dead simple to add one or the other to your Ember application.
 
 # Table of Contents
 
@@ -15,17 +15,21 @@ Auth0's [Lock](https://github.com/auth0/lock) widget is a nice way to get a full
 * [What does it do?](#what-does-it-do)
 * [Example App](#example-app)
 
-**Usage**
+**Installation**
 
 * [Auth0 Setup](#auth0-setup)
-* [Installation](#installation)
+* [Addon Installation](#addon-installation)
 * [Configuration](#configuration)
 * [Application Route Setup](#application-route-setup)
-* [Basic Usage](#basic-usage)
+
+**Usage**
+
+* [Embedded Lock](#embedded-lock)
+* [Passwordless Login](#passwordless-login)
+* [Universal Login](#universal-login)
 
 **Feature Guides**
 
-* [Passwordless](#passwordless)
 * [Impersonation](#impersonation)
 * [Silent Authentication](#silent-authentication)
 * [Session Data](#session-data)
@@ -53,14 +57,14 @@ Auth0's [Lock](https://github.com/auth0/lock) widget is a nice way to get a full
 
 ## What does it do?
 
-* it wires up Auth0's **Lock.js** to work with Ember Simple Auth.
+* it wires up Auth0's **Lock.js** and its hosted **Universal Login** to work with Ember Simple Auth.
 * it lets you work with **Ember Simple Auth** just like you normally do!
 
 ## Example App
 
 This addon ships with a dead simple [dummy app](https://github.com/auth0-community/ember-simple-auth-auth0/tree/develop/tests/dummy/app) that can be used as a template for starting new projects. Alternatively, this readme details how to get it up and running from scratch, and details some more advanced features and use cases.
 
-# Usage
+# Installation
 
 ## Auth0 Setup
 
@@ -68,9 +72,10 @@ If you don't already have an account, go sign up at [Auth0](https://auth0.com/) 
 
 1. Create a new app through your dashboard.
 2. Add `http://localhost:4200` to your Allowed Callback URLs through your dashboard
-3. Done!
+3. If you wish to use a hosted login page (i.e. Universal Login), enable it through your dashboard
+4. That's it!
 
-## Installation
+## Addon Installation
 
 To use this addon, simply install it with ember-cli:
 
@@ -160,9 +165,11 @@ export default Route.extend(ApplicationRouteMixin, {
 });
 ```
 
-## Basic Usage
+# Usage
 
-In your application controller, or wherever else you wish to do authentication (e.g. a '/login' route+controller), inject the session service and use the `auth0-lock` authenticator, like so:
+## Embedded Lock
+
+To use the embedded Lock widget, in your application controller, or wherever else you wish to do authentication (e.g. a '/login' route+controller), inject the session service and use the `auth0-lock` authenticator, like so:
 
 ```js
 // app/controllers/application.js
@@ -216,9 +223,7 @@ export default Controller.extend({
 
 When the `login` action above is fired, the Lock widget is created using the options passed to the `authenticate` function. Refer to [Auth0's documentation](https://auth0.com/docs/libraries/lock/customization) for notes on how to set up Lock itself -- all options are passed through to Lock as-is.
 
-# Feature Guides
-
-## Passwordless
+## Passwordless Login
 
 To perform passwordless login, use the `auth0-lock-passwordless` authenticator. That's it!
 
@@ -269,6 +274,52 @@ export default Controller.extend({
 ```
 
 Note that you can pass in a callback as the last argument to handle events after a passwordless link has been sent.
+
+## Universal Login
+
+To use Auth0's [Universal Login](https://auth0.com/docs/universal-login) workflow (i.e. an Auth0-hosted login page), use the `auth0-universal` authenticator. This will redirect the user to the hosted login page (just be sure to set this up on the server through your Auth0 dashboard first).
+
+Behind the scenes, the authenticator calls Auth0.js's [authorize](https://auth0.com/docs/libraries/auth0js/v9#webauth-authorize-) method, so see the linked docs for a full list of supported options.
+
+An example:
+
+```js
+// app/controllers/application.js
+
+import Ember from 'ember';
+
+const {
+  Controller,
+  inject: {
+    service
+  },
+  get
+} = Ember;
+
+export default Controller.extend({
+  session: service(),
+  actions: {
+    login () {
+      // Check out the docs for all the options:
+      // https://auth0.com/docs/libraries/auth0js/v9#webauth-authorize-
+      const authOptions = {
+        responseType: 'token',
+        scope: 'openid email profile'
+      };
+
+      get(this, 'session').authenticate('authenticator:auth0-universal', authOptions, (err, email) => {
+        console.log(`Email link sent to ${email}!`)
+      });
+    },
+
+    logout () {
+      get(this, 'session').invalidate();
+    }
+  }
+});
+```
+
+# Feature Guides
 
 ## Impersonation
 
