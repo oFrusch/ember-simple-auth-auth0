@@ -143,13 +143,9 @@ In your application route, be sure to import ApplicationRouteMixin **from this a
 ```js
 // app/routes/application.js
 
-import Ember from 'ember';
+import Route from '@ember/routing/route';
+import RSVP from 'rsvp';
 import ApplicationRouteMixin from 'ember-simple-auth-auth0/mixins/application-route-mixin';
-
-const {
-  Route,
-  RSVP
-} = Ember;
 
 export default Route.extend(ApplicationRouteMixin, {
   beforeSessionExpired() {
@@ -174,15 +170,8 @@ To use the embedded Lock widget, in your application controller, or wherever els
 ```js
 // app/controllers/application.js
 
-import Ember from 'ember';
-
-const {
-  Controller,
-  inject: {
-    service
-  },
-  get
-} = Ember;
+import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
 
 export default Controller.extend({
   session: service(),
@@ -198,11 +187,11 @@ export default Controller.extend({
        }
       };
 
-      get(this, 'session').authenticate('authenticator:auth0-lock', lockOptions);
+      this.session.authenticate('authenticator:auth0-lock', lockOptions);
     },
 
     logout () {
-      get(this, 'session').invalidate();
+      this.session.invalidate();
     }
   }
 });
@@ -237,15 +226,8 @@ An example might look like this:
 ```js
 // app/controllers/application.js
 
-import Ember from 'ember';
-
-const {
-  Controller,
-  inject: {
-    service
-  },
-  get
-} = Ember;
+import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
 
 export default Controller.extend({
   session: service(),
@@ -261,13 +243,13 @@ export default Controller.extend({
        }
       };
 
-      get(this, 'session').authenticate('authenticator:auth0-lock-passwordless', lockOptions, (err, email) => {
+      this.session.authenticate('authenticator:auth0-lock-passwordless', lockOptions, (err, email) => {
         console.log(`Email link sent to ${email}!`)
       });
     },
 
     logout () {
-      get(this, 'session').invalidate();
+      this.session.invalidate();
     }
   }
 });
@@ -286,15 +268,8 @@ An example:
 ```js
 // app/controllers/application.js
 
-import Ember from 'ember';
-
-const {
-  Controller,
-  inject: {
-    service
-  },
-  get
-} = Ember;
+import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
 
 export default Controller.extend({
   session: service(),
@@ -307,13 +282,13 @@ export default Controller.extend({
         scope: 'openid email profile'
       };
 
-      get(this, 'session').authenticate('authenticator:auth0-universal', authOptions, (err, email) => {
+      this.session.authenticate('authenticator:auth0-universal', authOptions, (err, email) => {
         console.log(`Email link sent to ${email}!`)
       });
     },
 
     logout () {
-      get(this, 'session').invalidate();
+      this.session.invalidate();
     }
   }
 });
@@ -449,12 +424,11 @@ __Note: all keys coming back from auth0 are transformed to camelcase for consist
     }
   }
 }
-
 ```
 
 You can use this in your templates that have the session service injected, like so:
 
-```html
+```hbs
 My logged in user email is {{session.data.authenticated.profile.email}}!
 ```
 
@@ -481,34 +455,19 @@ An example using [ember-data](https://github.com/emberjs/data):
 `ember g adapter application`
 
 ```js
-import Ember from 'ember';
-import DS from 'ember-data';
+import { JSONAPIAdapter } from 'ember-data';
 import DataAdapterMixin from 'ember-simple-auth/mixins/data-adapter-mixin';
-
-const {
-  computed
-} = Ember;
-
-const {
-  JSONAPIAdapter
-} = DS;
 
 export default JSONAPIAdapter.extend(DataAdapterMixin, {
   authorizer: 'authorizer:jwt',
 });
-
 ```
 
 ```js
 // app/routes/application.js
 
-import Ember from 'ember';
+import Route from '@ember/routing/route';
 import ApplicationRouteMixin from 'ember-simple-auth-auth0/mixins/application-route-mixin';
-
-const {
-  Route,
-  RSVP
-} = Ember;
 
 export default Route.extend(ApplicationRouteMixin, {
   model() {
@@ -534,7 +493,7 @@ fetch('/api/foo', {
   method: 'GET',
   cache: false,
   headers: {
-    'Authorization': 'Bearer <%= "${session.data.authenticated.jwt}" %>'
+    'Authorization': `Bearer ${session.data.authenticated.jwt}`
   }
 }).then(function (response) {
   // use response
@@ -566,15 +525,8 @@ in the options hash:
 ```js
 // app/controllers/application.js
 
-import Ember from 'ember';
-
-const {
-  Controller,
-  inject: {
-    service
-  },
-  get
-} = Ember;
+import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
 
 export default Controller.extend({
   session: service(),
@@ -589,7 +541,7 @@ export default Controller.extend({
        }
       };
 
-      get(this, 'session').authenticate('authenticator:auth0-lock-passwordless', 'magiclink', lockOptions, (err, email) => {
+      this.session.authenticate('authenticator:auth0-lock-passwordless', 'magiclink', lockOptions, (err, email) => {
         console.log(`Email link sent to ${email}!`)
       });
     },
@@ -605,13 +557,13 @@ export default Controller.extend({
        }
       };
 
-      get(this, 'session').authenticate('authenticator:auth0-lock-passwordless', lockOptions, (err, email) => {
+      this.session.authenticate('authenticator:auth0-lock-passwordless', lockOptions, (err, email) => {
         console.log(`Email link sent to ${email}!`)
       });
     },
 
     logout () {
-      get(this, 'session').invalidate();
+      this.session.invalidate();
     }
   }
 });
