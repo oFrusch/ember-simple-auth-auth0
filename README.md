@@ -38,7 +38,10 @@ Auth0's [Lock](https://github.com/auth0/lock) widget and [Universal Login](https
 
 **Migration Guides**
 
-* [Migrating from Ember-Simple-Auth-Auth0 v3.x](#migrating-from-ember-simple-auth-auth0-v3x)
+* [Migrating from Ember-Simple-Auth-Auth0 v4.x to v5.x](#migrating-from-ember-simple-auth-auth0-v4x-to-v5x)
+  * [Replace JWT Authorizer](#replace-jwt-authorizer)
+  * [Replace DataAdapterMixin](#replace-dataadaptermixin)
+* [Migrating from Ember-Simple-Auth-Auth0 v3.x to v4.x](#migrating-from-ember-simple-auth-auth0-v3x-to-v4x)
   * [Auth0 Migration Guides](#auth0-migration-guides)
   * [Passwordless Auth Changes](#passwordless-auth-changes)
   * [Impersonation Changes](#impersonation-changes)
@@ -446,7 +449,7 @@ Encountered an error from auth0 - {{model.error}} -- {{model.errorDescription}}
 
 ## Calling an API
 
-Use the `jwt` authorizer to get the user's token for API-calling purposes.
+The plugin `ember-simple-auth` provides the `authorize` hook to add the token of the user to the headers of the API request.
 
 See [server](./server) for an example of an express application getting called by the ember app.
 
@@ -455,11 +458,20 @@ An example using [ember-data](https://github.com/emberjs/data):
 `ember g adapter application`
 
 ```js
-import { JSONAPIAdapter } from 'ember-data';
+import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import DataAdapterMixin from 'ember-simple-auth/mixins/data-adapter-mixin';
+import { isPresent } from '@ember/utils';
+import { debug } from '@ember/debug';
 
 export default JSONAPIAdapter.extend(DataAdapterMixin, {
-  authorizer: 'authorizer:jwt',
+  authorize(xhr){
+    const { idToken } = this.get('session.data.authenticated');
+    if (isPresent(idToken)) {
+      xhr.setRequestHeader('Authorization', `Bearer ${idToken}`);
+    } else {
+      debug('Could not find the authorization token in the session data.');
+    }
+  }
 });
 ```
 
@@ -502,7 +514,75 @@ fetch('/api/foo', {
 
 # Migration Guides
 
-## Migrating from ember-simple-auth-auth0 v3.x
+## Migrating from ember-simple-auth-auth0 v4.x to v5.x
+
+The major breaking change in 5.x is the removal of the `jwt` authorizer. Ember Simple Auth has [deprecated authorizers](https://github.com/simplabs/ember-simple-auth#deprecation-of-authorizers) and will be removing them in a future release, so this addon has followed suit for futureproofing's sake.
+
+### Replace JWT Authorizer
+
+If you're directly using the `jwt` authorizer through the session service, like so:
+
+```js
+// app/controllers/something.js
+
+import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
+
+export default Controller.extend({
+  session: service(),
+  actions: {
+    doSomething () {
+      // ...
+      this.session.authorize('authorizer:jwt', (headerName, headerValue) => {
+        // ...do something with the header.
+      });
+      // ...
+    }
+  }
+});
+```
+
+Either construct an Authentication header from `session.data.authenticated` as shown in the [Calling an API](#calling-an-api) guide above, or just inject the `auth0` service and call the `authorize` method, like so:
+
+```js
+// app/controllers/something.js
+
+import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
+
+export default Controller.extend({
+  auth0: service(),
+  actions: {
+    doSomething () {
+      // ...
+      this.auth0.authorize((headerName, headerValue) => {
+        // ...do something with the header.
+      });
+      // ...
+    }
+  }
+});
+```
+
+The `auth0.authorize` method is nearly the same as `session.authorize`, but there's one less parameter since you no longer have to specify an authorizer type.
+
+### Replace DataAdapterMixin
+
+If you're currently Ember Simple Auth's DataAdapterMixin along with the `jwt` authorizer to make ember-data work, this addon includes a replacement Auth0DataAdapterMixin that does this for you:
+
+```js
+// app/adapters/application.js
+import JSONAPIAdapter from 'ember-data/adapters/json-api';
+import Auth0DataAdapterMixin from 'ember-simple-auth-auth0/mixins/auth0-data-adapter-mixin';
+
+export default JSONAPIAdapter.extend(Auth0DataAdapterMixin, {
+  // customizer your adpater further here, if you wish.
+});
+```
+
+Note that this is functionally equivalent to customizing the adapter as shown in the [Calling an API](#calling-an-api) guide above. The guides in the main sections of this README use the methodology recommended by Ember Simple Auth (that is, constructing a header directly) rather than use these shortcut functions/mixins, but they're effectively the same. It's a matter of taste and convenience, mostly.
+
+## Migrating from ember-simple-auth-auth0 v3.x to v4.x
 
 Starting from version 4.0.0, this addon uses Lock v11, which now supports Passwordless functionality
 among other things. As such, there are a few breaking changes to consider for users coming from v3.x
