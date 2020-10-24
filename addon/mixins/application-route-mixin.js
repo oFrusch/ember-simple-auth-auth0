@@ -1,5 +1,5 @@
 import Mixin from '@ember/object/mixin';
-import { set, getWithDefault, get, computed } from '@ember/object';
+import { set, computed } from '@ember/object';
 import RSVP, { resolve } from 'rsvp';
 import { inject as service } from '@ember/service';
 import { run } from '@ember/runloop';
@@ -68,7 +68,7 @@ export default Mixin.create(ApplicationRouteMixin, {
       return;
     }
 
-    return get(this, 'session').authenticate('authenticator:auth0-url-hash', urlHashData)
+    return this.session.authenticate('authenticator:auth0-url-hash', urlHashData)
       .then(this._clearUrlHash.bind(this));
   },
 
@@ -77,8 +77,8 @@ export default Mixin.create(ApplicationRouteMixin, {
       return;
     }
 
-    const auth0 = get(this, 'auth0')._getAuth0Instance();
-    const enableImpersonation = get(this, 'auth0.enableImpersonation');
+    const auth0 = this.auth0._getAuth0Instance();
+    const enableImpersonation = this.auth0.enableImpersonation;
     return new RSVP.Promise((resolve, reject) => {
       auth0.parseHash({__enableImpersonation: enableImpersonation}, (err, parsedPayload) => {
         if (err) {
@@ -91,7 +91,7 @@ export default Mixin.create(ApplicationRouteMixin, {
   },
 
   _clearUrlHash() {
-    if(typeof FastBoot === 'undefined' && !this.get('inTesting') && window.history) {
+    if(typeof FastBoot === 'undefined' && !this.inTesting && window.history) {
       window.history.pushState('', document.title, window.location.pathname + window.location.search);
     }
     return RSVP.resolve()
@@ -99,32 +99,32 @@ export default Mixin.create(ApplicationRouteMixin, {
 
   _setupFutureEvents() {
     // Don't schedule expired events during testing, otherwise acceptance tests will hang.
-    if (this.get('inTesting') || typeof FastBoot !== 'undefined') {
+    if (this.inTesting || typeof FastBoot !== 'undefined') {
       return;
     }
 
     // [XA] only actually schedule events if we're authenticated.
-    if (get(this, 'session.isAuthenticated')) {
+    if (this.session.isAuthenticated) {
       this._scheduleRenew();
       this._scheduleExpire();
     }
   },
 
   _scheduleJob(jobName, jobFn, timeInMilli) {
-    run.cancel(get(this, jobName));
+    run.cancel(this.jobName);
     const job = run.later(this, jobFn, timeInMilli);
     set(this, jobName, job);
   },
 
   _scheduleRenew() {
-    const renewInMilli = get(this, 'auth0.silentAuthRenewSeconds') * 1000;
+    const renewInMilli = this.auth0.silentAuthRenewSeconds * 1000;
     if(renewInMilli) {
       this._scheduleJob('_renewJob', this._processSessionRenewed, renewInMilli);
     }
   },
 
   _scheduleExpire() {
-    const expireInMilli = get(this, '_jwtRemainingTimeInSeconds') * 1000;
+    const expireInMilli = this._jwtRemainingTimeInSeconds * 1000;
     this._scheduleJob('_expireJob', this._processSessionExpired, expireInMilli);
   },
 
@@ -132,13 +132,13 @@ export default Mixin.create(ApplicationRouteMixin, {
    * The current JWT's expire time
    * @return {Date of expiration}
    */
-  _expiresAt: computed('session.data.authenticated', {
+  _expiresAt: computed('session.{data.authenticated,isAuthenticated}', {
     get() {
-      if (!get(this, 'session.isAuthenticated')) {
+      if (!this.session.isAuthenticated) {
         return 0;
       }
 
-      const sessionData = get(this, 'session.data.authenticated');
+      const sessionData = this.session.data.authenticated;
       return getSessionExpiration(sessionData);
     }
   }),
@@ -149,15 +149,15 @@ export default Mixin.create(ApplicationRouteMixin, {
    */
   _jwtRemainingTimeInSeconds: computed('_expiresAt', {
     get() {
-      let remaining = getWithDefault(this, '_expiresAt', 0) - now();
+      let remaining = (this._expiresAt ?? 0) - now();
 
       return remaining < 0 ? 0 : remaining;
     }
   }),
 
   _clearJobs() {
-    run.cancel(get(this, '_renewJob'));
-    run.cancel(get(this, '_expireJob'));
+    run.cancel(this._renewJob);
+    run.cancel(this._expireJob);
   },
 
   _processSessionRenewed() {
@@ -173,24 +173,21 @@ export default Mixin.create(ApplicationRouteMixin, {
   },
 
   _trySilentAuth() {
-    const auth0Svc = get(this, 'auth0');
-    if(get(auth0Svc, 'silentAuthOnSessionExpire')) {
+    if(this.auth0.silentAuthOnSessionExpire) {
       // Try silent auth, but reverse the promise results.
       // since a rejecting promise during expiration means
       // "don't expire", we want to reject on success and
       // resolve on failure. Strange times.
       return new RSVP.Promise((resolve, reject) => {
-        get(this, 'session').authenticate('authenticator:auth0-silent-auth').then(reject, resolve);
+        this.session.authenticate('authenticator:auth0-silent-auth').then(reject, resolve);
       });
     }
     return RSVP.resolve();
   },
 
   _invalidateIfAuthenticated() {
-    let session = get(this, 'session');
-
-    if (get(session, 'isAuthenticated')) {
-      session.invalidate();
+    if (this.session.isAuthenticated) {
+      this.session.invalidate();
     }
   }
 });

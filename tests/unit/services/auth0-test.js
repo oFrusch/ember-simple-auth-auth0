@@ -1,24 +1,22 @@
 import { assign } from '@ember/polyfills';
-import EmberObject, { set, get } from '@ember/object';
+import EmberObject, { set } from '@ember/object';
 import Evented from '@ember/object/evented';
-import test from 'ember-sinon-qunit/test-support/test';
+
+import { setupTest, test } from 'ember-qunit';
 import sinon from 'sinon';
 import createSessionDataObject from 'ember-simple-auth-auth0/utils/create-session-data-object';
 
 import { module } from 'qunit';
 
-import {
-  setupTest,
-} from 'ember-qunit';
 
 const StubLock = EmberObject.extend(Evented, {
   profile: null,
   shouldThrowGetUserInfoError: false,
   getUserInfo(idToken, callback) {
-    if (get(this, 'shouldThrowGetUserInfoError')) {
+    if (this.shouldThrowGetUserInfoError) {
       callback(new Error('failed to get profile'));
     } else {
-      callback(null, get(this, 'profile'));
+      callback(null, this.profile);
     }
   },
   show: sinon.stub(),
@@ -49,7 +47,7 @@ module('Unit | Service | auth0', function(hooks) {
 
     this.stubLock = function(stubbedLock) {
       stubbedLock = stubbedLock || StubLock.create();
-      return this.stub().resolves(stubbedLock);
+      return sinon.stub().resolves(stubbedLock);
     };
 
     this.windowLocation = function() {
@@ -71,8 +69,7 @@ module('Unit | Service | auth0', function(hooks) {
     });
 
     let service = this.owner.lookup('service:auth0');
-    assert.equal(get(service, 'logoutReturnToURL'),
-      config['ember-simple-auth'].auth0.logoutReturnToURL);
+    assert.equal(service.logoutReturnToURL, config['ember-simple-auth'].auth0.logoutReturnToURL);
   });
 
   test('it calculates the logoutURL from logoutReturnToPath correctly', function(assert) {
@@ -86,7 +83,7 @@ module('Unit | Service | auth0', function(hooks) {
 
     let service = this.owner.lookup('service:auth0');
     let path = config['ember-simple-auth'].auth0.logoutReturnToPath
-    assert.equal(get(service, 'logoutReturnToURL'), `${this.windowLocation()}${path}`);
+    assert.equal(service.logoutReturnToURL, `${this.windowLocation()}${path}`);
   });
 
   test('showLock calls getUserInfo', function(assert) {

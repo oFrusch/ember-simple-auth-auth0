@@ -1,11 +1,11 @@
 import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 import RSVP from 'rsvp';
-import EmberObject, { get } from '@ember/object';
+import EmberObject from '@ember/object';
 import ApplicationRouteMixinMixin from 'ember-simple-auth-auth0/mixins/application-route-mixin';
 import { module } from 'qunit';
-import { setupTest } from 'ember-qunit';
-import test from 'ember-sinon-qunit/test-support/test';
+import { setupTest, test } from 'ember-qunit';
+import sinon from 'sinon';
 
 import { freezeDateAt, unfreezeDate } from 'ember-mockdate-shim';
 import now from 'ember-simple-auth-auth0/utils/now';
@@ -44,7 +44,7 @@ module('Unit | Mixin | application route mixin', function(hooks) {
       },
     });
 
-    assert.equal(get(subject, '_expiresAt'), issuedAt + 10);
+    assert.equal(subject._expiresAt, issuedAt + 10);
     unfreezeDate();
   });
 
@@ -68,7 +68,7 @@ module('Unit | Mixin | application route mixin', function(hooks) {
       },
     });
 
-    assert.equal(get(subject, '_expiresAt'), issuedAt + 10);
+    assert.equal(subject._expiresAt, issuedAt + 10);
     unfreezeDate();
   });
 
@@ -85,16 +85,16 @@ module('Unit | Mixin | application route mixin', function(hooks) {
       },
     });
 
-    assert.equal(get(subject, '_expiresAt'), 0);
+    assert.equal(subject._expiresAt, 0);
   });
 
   test('it calls the auth0-url-hash authenticator if we have url hash data', function(assert) {
     assert.expect(2);
     const subject = this.subject({
       session: {
-        authenticate: this.stub().returns(RSVP.resolve())
+        authenticate: sinon.stub().returns(RSVP.resolve())
       },
-      _getUrlHashData: this.stub().returns(RSVP.resolve({
+      _getUrlHashData: sinon.stub().returns(RSVP.resolve({
         idToken: 1
       })),
     });
@@ -109,9 +109,9 @@ module('Unit | Mixin | application route mixin', function(hooks) {
     assert.expect(1);
     const subject = this.subject({
       session: {
-        authenticate: this.stub().returns(RSVP.resolve())
+        authenticate: sinon.stub().returns(RSVP.resolve())
       },
-      _getUrlHashData: this.stub().returns(RSVP.resolve()),
+      _getUrlHashData: sinon.stub().returns(RSVP.resolve()),
     });
 
     run(() => subject.beforeModel());

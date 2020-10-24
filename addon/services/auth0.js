@@ -1,6 +1,6 @@
 import { readOnly, bool } from '@ember/object/computed';
 import { getOwner } from '@ember/application';
-import { getProperties, get, getWithDefault, computed } from '@ember/object';
+import { computed } from '@ember/object';
 import { assert, debug } from '@ember/debug';
 import { isEmpty, isPresent } from '@ember/utils';
 import Service, { inject as service } from '@ember/service';
@@ -25,9 +25,10 @@ export default Service.extend({
    *
    * @type {Object}
    */
+  // eslint-disable-next-line ember/require-computed-property-dependencies
   config: computed({
     get() {
-      const emberSimpleAuthConfig = get(this, '_environmentConfig')['ember-simple-auth'];
+      const emberSimpleAuthConfig = this._environmentConfig['ember-simple-auth'];
       assert('ember-simple-auth config must be defined', emberSimpleAuthConfig);
       assert('ember-simple-auth.auth0 config must be defined', emberSimpleAuthConfig.auth0);
 
@@ -52,12 +53,12 @@ export default Service.extend({
    * @type {String}
    */
   logoutReturnToURL: computed('config.{logoutReturnToURL,logoutReturnToPath}', function() {
-    const logoutReturnToPath = get(this, 'config.logoutReturnToPath');
+    const logoutReturnToPath = this.config.logoutReturnToPath;
     if (logoutReturnToPath) {
       assert('ember-simple-auth-auth0 logoutReturnToPath must start with /', logoutReturnToPath.startsWith('/'));
       return window.location.origin + logoutReturnToPath;
     }
-    return get(this, 'config.logoutReturnToURL');
+    return this.config.logoutReturnToURL;
   }),
 
   /**
@@ -88,7 +89,7 @@ export default Service.extend({
    * Default options to use when performing silent authentication.
    * This is a function rather than a computed property since the
    * default redirectUri needs to be regenerated every time.
-   * 
+   *
    * @method _getSilentAuthOptions
    * @return {Object}
    */
@@ -99,7 +100,7 @@ export default Service.extend({
       redirectUri: window.location.origin,
       timeout: 5000
     };
-    const configOptions = getWithDefault(this, 'config.silentAuth.options', {});
+    const configOptions = this.config.silentAuth.options ?? {};
     const redirectPath = configOptions.redirectPath;
 
     // Support redirectPath which becomes redirectUri with the origin location prepended.
@@ -136,7 +137,7 @@ export default Service.extend({
           // special check: running this with Ember Inspector active
           // results in an ember version object getting returned for
           // some oddball reason. Reject and warn the user (dev?).
-          if(data && get(data, 'type') === 'emberVersion') {
+          if(data && data.type === 'emberVersion') {
             reject(new Auth0Error('Silent Authentication is not supported when Ember Inspector is enabled. Please disable the extension to re-enable support.'));
           } else {
             resolve(data);
@@ -162,8 +163,8 @@ export default Service.extend({
    * @param {Object} block
    */
   authorize(block) {
-    if (get(this, 'session.isAuthenticated')) {
-      const userToken = get(this, 'session.data.authenticated.idToken');
+    if (this.session.isAuthenticated) {
+      const userToken = this.session.data.authenticated.idToken;
 
       if (isPresent(userToken)) {
         block('Authorization', `Bearer ${userToken}`);
@@ -183,9 +184,9 @@ export default Service.extend({
   {
     // save the attempted transition URL so ember-simple-auth
     // will restore it once Auth0 redirects back to the app.
-    let transitionPath = get(this, 'session.attemptedTransition.intent.url');
+    let transitionPath = this.session.attemptedTransition.intent.url;
     if(transitionPath) {
-      get(this, 'cookies').write('ember_simple_auth-redirectTarget', transitionPath, {
+      this.cookies.write('ember_simple_auth-redirectTarget', transitionPath, {
         path: '/',
         secure: window.location.protocol === 'https:'
       });
@@ -241,7 +242,7 @@ export default Service.extend({
 
     // [XA] shim for tests -- need to wait until the above 'authenticated'
     // listener is registered before triggering it during unit tests.
-    if (this.get('inTesting')) {
+    if (this.inTesting) {
       lock.trigger('_setupCompleted');
     }
   },
@@ -251,8 +252,8 @@ export default Service.extend({
   },
 
   _getAuth0LockInstance(options, clientID = null, domain = null, passwordless = false) {
-    clientID = clientID || get(this, 'clientID');
-    domain = domain || get(this, 'domain');
+    clientID = clientID || this.clientID;
+    domain = domain || this.domain;
 
     return this._getAuth0LockModule().then(module => {
       const Auth0LockConstructor = passwordless ? module.Auth0LockPasswordless : module.Auth0Lock;
@@ -261,8 +262,8 @@ export default Service.extend({
   },
 
   _getAuth0Instance(clientID = null, domain = null) {
-    clientID = clientID || get(this, 'clientID');
-    domain = domain || get(this, 'domain');
+    clientID = clientID || this.clientID;
+    domain = domain || this.domain;
 
     return new Auth0.WebAuth({
       domain,
@@ -275,17 +276,17 @@ export default Service.extend({
       domain,
       logoutReturnToURL,
       clientID
-    } = getProperties(this, 'domain', 'logoutReturnToURL', 'clientID');
+    } = this;
 
     logoutReturnToURL = logoutUrl || logoutReturnToURL;
 
-    if (!this.get('inTesting')) {
+    if (!this.inTesting) {
       window.location.replace(`https://${domain}/v2/logout?returnTo=${logoutReturnToURL}&client_id=${clientID}`);
     }
   },
 
   logout(logoutUrl) {
-    get(this, 'session').invalidate().then(() => {
+    this.session.invalidate().then(() => {
       this._navigateToLogoutURL(logoutUrl);
     });
   },

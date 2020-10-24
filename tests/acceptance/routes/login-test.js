@@ -1,8 +1,7 @@
-import { currentURL } from '@ember/test-helpers';
-import { get } from '@ember/object';
+import { currentURL, settled } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'ember-qunit';
-import { currentSession, authenticateSession} from 'ember-simple-auth/test-support';
+import { currentSession, authenticateSession } from 'ember-simple-auth/test-support';
 import { mockAuth0Lock } from 'ember-simple-auth-auth0/test-support';
 import page from '../../pages/login';
 
@@ -18,8 +17,9 @@ module('Acceptance | login', function(hooks) {
 
   test('visiting /login redirects to /protected page if authenticated', async function(assert) {
     assert.expect(1);
-    await page.visit();
+
     await authenticateSession();
+    await page.visit();
 
     assert.equal(currentURL(), '/protected');
   });
@@ -33,12 +33,11 @@ module('Acceptance | login', function(hooks) {
 
     await mockAuth0Lock(sessionData);
 
-    await page
-      .visit()
-      .login();
+    await page.visit().login();
+    await settled();
 
     let session = currentSession();
-    let idToken = get(session, 'data.authenticated.idToken');
+    let idToken = session.data.authenticated.idToken;
     assert.equal(idToken, sessionData.idToken);
     assert.equal(currentURL(), '/protected');
   });
@@ -57,7 +56,7 @@ module('Acceptance | login', function(hooks) {
       .login();
 
     let session = currentSession();
-    let idToken = get(session, 'data.authenticated.idToken');
+    let idToken = session.data.authenticated.idToken;
     assert.equal(idToken, sessionData.idToken);
     assert.equal(currentURL(), '/protected');
   });

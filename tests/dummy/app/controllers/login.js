@@ -1,26 +1,29 @@
 import Controller from '@ember/controller';
 import { inject as service } from '@ember/service';
 import { alias } from '@ember/object/computed';
-import { get } from '@ember/object';
+import { action } from '@ember/object';
 
-export default Controller.extend({
-  session: service(),
-  myModel: alias('model'),
-  actions: {
-    login() {
-      get(this, 'session').authenticate('authenticator:auth0-lock');
-    },
-    loginPasswordless(method, connection) {
-      const lockOptions = {
-        passwordlessMethod: method,
-        allowedConnections: [connection],
-        autoclose: true,
-      };
+export default class LoginController extends Controller {
+  @service session;
 
-      get(this, 'session').authenticate('authenticator:auth0-lock-passwordless', lockOptions, () => {
-        // eslint-disable-next-line no-console
-        console.log('Passwordless sent');
-      });
-    }
+  @alias('model') myModel;
+
+  @action
+  login() {
+    this.session.authenticate('authenticator:auth0-lock');
   }
-});
+
+  @action
+  loginPasswordless(method, connection) {
+    const lockOptions = {
+      passwordlessMethod: method,
+      allowedConnections: [connection],
+      autoclose: true,
+    };
+
+    this.session.authenticate('authenticator:auth0-lock-passwordless', lockOptions, () => {
+      // eslint-disable-next-line no-console
+      console.log('Passwordless sent');
+    });
+  }
+}
