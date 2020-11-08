@@ -1,24 +1,24 @@
 <h3>
-  You are currently logged as: {{session.data.authenticated.profile.email}}
-  <img src="{{session.data.authenticated.profile.picture}}" width="50" height="50">
+  You are currently logged as: {{this.session.data.authenticated.profile.email}}
+  <img src="{{this.session.data.authenticated.profile.picture}}" width="50" height="50">
 </h3>
 <h3>
-  {{#if session.data.authenticated.profile.impersonated}}
-    Impersonated by: {{session.data.authenticated.profile.impersonator.email}}
+  {{#if this.session.data.authenticated.profile.impersonated}}
+    Impersonated by: {{this.session.data.authenticated.profile.impersonator.email}}
   {{/if}}
 </h3>
 <div>
-  Token expires {{moment-calendar expiresIn}} {{moment-from-now expiresIn}}
+  Token expires {{moment-calendar this.expiresIn}} {{moment-from-now this.expiresIn}}
 </div>
 <a href="#" {{action "logout"}}>
-  {{#if session.data.authenticated.profile.impersonated}}
+  {{#if this.session.data.authenticated.profile.impersonated}}
     Stop Impersonating
   {{else}}
     Logout of Ember Simple Auth
   {{/if}}
 </a>
 <br/>
-<a href="#" {{action "logoutOfAuth0"}}>
+<a href="#" {{on "click" this.logoutOfAuth0}}>
   Logout of Auth0 Session
 </a>
 
@@ -28,6 +28,6 @@
 
 <h2>Here are some protected posts</h2>
 
-{{#each posts as |post|}}
+{{#each this.posts as |post|}}
   {{post.title}}
 {{/each}}

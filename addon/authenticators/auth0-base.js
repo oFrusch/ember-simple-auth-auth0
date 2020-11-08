@@ -1,5 +1,4 @@
 import RSVP from 'rsvp';
-import { get } from '@ember/object';
 import { isEmpty } from '@ember/utils';
 import { inject as service } from '@ember/service';
 import BaseAuthenticator from 'ember-simple-auth/authenticators/base';
@@ -10,11 +9,12 @@ import now from '../utils/now';
 
 export default BaseAuthenticator.extend({
   auth0: service(),
+
   restore(data) {
     const expiresAt = getSessionExpiration(data || {});
     if(expiresAt > now()) {
       return RSVP.resolve(data);
-    } else if(get(this, 'auth0.silentAuthOnSessionRestore')) {
+    } else if(this.auth0.silentAuthOnSessionRestore) {
       return this._performSilentAuth()
     } else {
       return RSVP.reject();
@@ -26,7 +26,7 @@ export default BaseAuthenticator.extend({
     if (isEmpty(authResult)) {
       reject();
     }
-    const auth0 = get(this, 'auth0')._getAuth0Instance();
+    const auth0 = this.auth0._getAuth0Instance();
     const getUserInfo = auth0.client.userInfo.bind(auth0.client);
 
     getUserInfo(authResult.accessToken, (err, profile) => {
@@ -45,7 +45,7 @@ export default BaseAuthenticator.extend({
         // perform silent auth via auth0's checkSession function (called in the service);
         // if successful, use the same logic as the url-hash authenticator since the
         // result of checkSession is the same as parseHash.
-        get(this, 'auth0').silentAuth(options).then(authenticatedData => {
+        this.auth0.silentAuth(options).then(authenticatedData => {
           this._resolveAuthResult(authenticatedData, resolve, reject);
         }, error => {
           // for any error types other than login_required, log it to the console.

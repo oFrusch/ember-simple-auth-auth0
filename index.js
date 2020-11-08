@@ -3,12 +3,12 @@
 const webpack = require('webpack');
 
 module.exports = {
-  name: 'ember-simple-auth-auth0',
+  name: require('./package').name,
   options: {
     babel: {
       plugins: [ require.resolve('ember-auto-import/babel-plugin') ]
     },
-    autoImport:{
+    autoImport: {
       webpack: {
         plugins: [
           new webpack.DefinePlugin({

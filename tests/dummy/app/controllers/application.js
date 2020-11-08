@@ -1,6 +1,6 @@
 import Controller from '@ember/controller';
 import { alias } from '@ember/object/computed';
 
-export default Controller.extend({
-  myModel: alias('model'),
-});
+export default class ApplicationController extends Controller {
+  @alias('model') myModel;
+}
