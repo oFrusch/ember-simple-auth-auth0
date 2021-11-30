@@ -1,6 +1,6 @@
 {
   "name": "ember-simple-auth-auth0",
-  "version": "5.0.0-beta.0",
+  "version": "5.1.0-beta.0",
   "description": "ember-simple-auth addon for Auth0 + Lock.js.",
   "directories": {
     "doc": "doc",
@@ -83,8 +83,10 @@
     "ember-auto-import": "^1.6.0",
     "ember-cli-babel": "^7.23.0",
     "ember-cli-htmlbars": "^5.3.1",
-    "ember-simple-auth": ">= 1.x <= 3.x",
-    "webpack": "^4.43.0"
+    "ember-simple-auth": "^4.0.0",
+    "webpack": "^4.43.0",
+    "rsvp": "^4.8.5"
+
   },
   "ember": {
     "edition": "octane"
