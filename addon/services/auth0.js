@@ -184,7 +184,7 @@ export default Service.extend({
   {
     // save the attempted transition URL so ember-simple-auth
     // will restore it once Auth0 redirects back to the app.
-    let transitionPath = this.session.attemptedTransition.intent.url;
+    let transitionPath = this.session.get('attemptedTransition.intent.url');
     if(transitionPath) {
       this.cookies.write('ember_simple_auth-redirectTarget', transitionPath, {
         path: '/',
