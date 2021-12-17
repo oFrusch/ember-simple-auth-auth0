@@ -1,1 +1,1 @@
-export { default } from 'ember-simple-auth-auth0/mixins/application-route-mixin';
+export { default } from '@jebbit/ember-simple-auth-auth0/mixins/application-route-mixin';

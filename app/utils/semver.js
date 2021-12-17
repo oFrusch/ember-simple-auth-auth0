@@ -1,1 +1,1 @@
-export { default } from 'ember-simple-auth-auth0/utils/semver';
+export { default } from '@jebbit/ember-simple-auth-auth0/utils/semver';

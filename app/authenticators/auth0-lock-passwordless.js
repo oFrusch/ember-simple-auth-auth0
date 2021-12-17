@@ -1,1 +1,1 @@
-export { default } from 'ember-simple-auth-auth0/authenticators/auth0-lock-passwordless';
+export { default } from '@jebbit/ember-simple-auth-auth0/authenticators/auth0-lock-passwordless';

@@ -1,7 +1,7 @@
 import RSVP from 'rsvp';
 import { getContext, settled } from '@ember/test-helpers';
 import { set } from '@ember/object';
-import createSessionDataObject from 'ember-simple-auth-auth0/utils/create-session-data-object';
+import createSessionDataObject from '@jebbit/ember-simple-auth-auth0/utils/create-session-data-object';
 
 export function mockAuth0Lock(sessionData) {
   const { owner } = getContext();

@@ -1,5 +1,5 @@
 import { inject as service } from '@ember/service';
-import Auth0BaseAuthenticator from 'ember-simple-auth-auth0/authenticators/auth0-base';
+import Auth0BaseAuthenticator from '@jebbit/ember-simple-auth-auth0/authenticators/auth0-base';
 
 export default Auth0BaseAuthenticator.extend({
   auth0: service(),

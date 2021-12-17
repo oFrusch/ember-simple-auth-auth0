@@ -6,7 +6,7 @@ import {
 } from 'qunit';
 
 import { freezeDateAt, unfreezeDate } from 'ember-mockdate-shim';
-import now from 'ember-simple-auth-auth0/utils/now';
+import now from '@jebbit/ember-simple-auth-auth0/utils/now';
 
 module('Unit | Utility | create session data object', function() {
   test('it merges the profile and token info', function(assert) {

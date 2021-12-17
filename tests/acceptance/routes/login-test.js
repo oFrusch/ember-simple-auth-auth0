@@ -2,7 +2,7 @@ import { currentURL, settled } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'ember-qunit';
 import { currentSession, authenticateSession } from 'ember-simple-auth/test-support';
-import { mockAuth0Lock } from 'ember-simple-auth-auth0/test-support';
+import { mockAuth0Lock } from '@jebbit/ember-simple-auth-auth0/test-support';
 import page from '../../pages/login';
 
 module('Acceptance | login', function(hooks) {

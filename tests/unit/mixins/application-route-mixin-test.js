@@ -2,13 +2,13 @@ import { assign } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 import RSVP from 'rsvp';
 import EmberObject from '@ember/object';
-import ApplicationRouteMixinMixin from 'ember-simple-auth-auth0/mixins/application-route-mixin';
+import ApplicationRouteMixinMixin from '@jebbit/ember-simple-auth-auth0/mixins/application-route-mixin';
 import { module } from 'qunit';
 import { setupTest, test } from 'ember-qunit';
 import sinon from 'sinon';
 
 import { freezeDateAt, unfreezeDate } from 'ember-mockdate-shim';
-import now from 'ember-simple-auth-auth0/utils/now';
+import now from '@jebbit/ember-simple-auth-auth0/utils/now';
 
 module('Unit | Mixin | application route mixin', function(hooks) {
   setupTest(hooks);

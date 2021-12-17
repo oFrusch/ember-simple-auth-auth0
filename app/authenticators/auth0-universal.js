@@ -1,1 +1,1 @@
-export { default } from 'ember-simple-auth-auth0/authenticators/auth0-universal';
+export { default } from '@jebbit/ember-simple-auth-auth0/authenticators/auth0-universal';

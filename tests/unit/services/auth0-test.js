@@ -4,7 +4,7 @@ import Evented from '@ember/object/evented';
 
 import { setupTest, test } from 'ember-qunit';
 import sinon from 'sinon';
-import createSessionDataObject from 'ember-simple-auth-auth0/utils/create-session-data-object';
+import createSessionDataObject from '@jebbit/ember-simple-auth-auth0/utils/create-session-data-object';
 
 import { module } from 'qunit';
 
