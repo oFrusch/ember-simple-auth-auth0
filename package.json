@@ -1,6 +1,6 @@
 {
-  "name": "ember-simple-auth-auth0",
-  "version": "5.1.1",
+  "name": "@jebbit/ember-simple-auth-auth0",
+  "version": "5.1.2",
   "description": "ember-simple-auth addon for Auth0 + Lock.js.",
   "directories": {
     "doc": "doc",
@@ -15,7 +15,10 @@
     "test:ember": "ember test",
     "test:ember-compatibility": "ember try:each"
   },
-  "repository": "https://github.com/auth0-community/ember-simple-auth-auth0",
+  "repository": "https://github.com/jebbit/ember-simple-auth-auth0",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/jebbit"
+  },
   "engines": {
     "node": "10.* || >= 12"
   },

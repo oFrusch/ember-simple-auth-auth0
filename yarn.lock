@@ -11211,13 +11211,11 @@
 "normalize-git-url@~3.0.1":
   "version" "3.0.1"
 
-"normalize-package-data@^2.0.0":
-  "integrity" "sha512-/5CMN3T0R4XTj4DcGaexo+roZSdSFW/0AOOTROrjxzCG1wrWXEsGbRKevjlIL+ZDE4sZlJr5ED4YW0yqmkK+eA=="
-  "resolved" "https://registry.npmjs.org/normalize-package-data/-/normalize-package-data-2.5.0.tgz"
-  "version" "2.5.0"
+"normalize-package-data@^2.0.0", "normalize-package-data@~1.0.1 || ^2.0.0", "normalize-package-data@~2.3.5":
+  "version" "2.3.5"
   dependencies:
     "hosted-git-info" "^2.1.4"
-    "resolve" "^1.10.0"
+    "is-builtin-module" "^1.0.0"
     "semver" "2 || 3 || 4 || 5"
     "validate-npm-package-license" "^3.0.1"
 
@@ -11228,14 +11226,6 @@
   dependencies:
     "hosted-git-info" "^2.1.4"
     "resolve" "^1.10.0"
-    "semver" "2 || 3 || 4 || 5"
-    "validate-npm-package-license" "^3.0.1"
-
-"normalize-package-data@~1.0.1 || ^2.0.0", "normalize-package-data@~2.3.5":
-  "version" "2.3.5"
-  dependencies:
-    "hosted-git-info" "^2.1.4"
-    "is-builtin-module" "^1.0.0"
     "semver" "2 || 3 || 4 || 5"
     "validate-npm-package-license" "^3.0.1"
 
@@ -13325,7 +13315,7 @@
   dependencies:
     "semver" "^5.0.3"
 
-"semver@^2.3.0 || 3.x || 4 || 5", "semver@~5.1.0", "semver@2 >=2.2.1 || 3.x || 4 || 5", "semver@2.x || 3.x || 4 || 5":
+"semver@^2.3.0 || 3.x || 4 || 5", "semver@~5.1.0", "semver@2 >=2.2.1 || 3.x || 4 || 5", "semver@2.x || 3.x || 4 || 5", "semver@4 || 5":
   "version" "5.1.0"
 
 "semver@^4.3.1":
@@ -13394,11 +13384,6 @@
   "integrity" "sha1-d0Zt5YnNXTyV8TiqeLxWmjy10no="
   "resolved" "https://registry.npmjs.org/semver/-/semver-5.0.3.tgz"
   "version" "5.0.3"
-
-"semver@4 || 5":
-  "integrity" "sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ=="
-  "resolved" "https://registry.npmjs.org/semver/-/semver-5.7.1.tgz"
-  "version" "5.7.1"
 
 "semver@7.0.0":
   "integrity" "sha512-+GB6zVA9LWh6zovYQLALHwv5rb2PHGlJi3lfiqIHxR0uuwCgefcOJc59v9fv1w8GbStwxuuqqAjI9NMAOOgq1A=="
