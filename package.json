@@ -86,7 +86,7 @@
     "ember-auto-import": "^1.6.0",
     "ember-cli-babel": "^7.23.0",
     "ember-cli-htmlbars": "^5.3.1",
-    "ember-simple-auth": "^4.0.0",
+    "ember-simple-auth": "6.0.0-rc.1",
     "webpack": "^4.43.0",
     "rsvp": "^4.8.5"
 
